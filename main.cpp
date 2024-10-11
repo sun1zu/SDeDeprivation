@@ -14,21 +14,28 @@ void invoke_shutdown_timer(){
     int hour = ltm->tm_hour;
     int min = ltm->tm_min;
 
-    if(hour >= 14 && min >= 30 || hour <= 5){
+    if(hour == 21 && min >= 30 || hour > 21 || hour <= 5){
         std::system("shutdown /s /t 300 /c \"turnin off ur pc in 5 min :P \nenter shutdown /a to ignore\"");
+        cout << "Timer has started" << endl;
     }
 }
 
-void throw_to_startup_apps(){
+//todo: make it run on system boot
+void setup(){
     char buffer[255];
     HMODULE hmodule = GetModuleHandle(NULL);
     GetModuleFileName(hmodule, buffer, sizeof(buffer));
-    string exePath = str(buffer);
+    string exePath = string(buffer);
 
-    cout << exePath << endl;
-    // std::string command = "schtasks /create /tn MyApp /tr " + exePath + "/sc daily /st 21:30";
+    string command = "schtasks /create /tn SDeDeprivation /tr " + exePath + " /sc daily /st 21:30";
+    system(command.c_str());
+
+    cout << "Task created successfully" << endl;
 }
 
-int main(){
-    throw_to_startup_apps();
+int main(int argc, char* argv[]){
+    if (argc > 1 && std::string(argv[1]) == "-setup") {
+        setup();
+    }
+    invoke_shutdown_timer();
 }
